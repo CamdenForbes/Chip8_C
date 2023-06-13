@@ -141,7 +141,7 @@
     <None Include="test_opcode.ch8" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Chip8.h" />
+    <ClInclude Include="Header.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

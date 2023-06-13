@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <conio.h>
 #include <windows.h>
+#include "Header.h"
 #include <SDL.h>
 
 /*GLOBAL VARIABLES*/
@@ -16,7 +17,7 @@ unsigned char memory[4096]; //4k total memory
 unsigned char V[16]; //Registers V0-VE, 16th is carry flag
 unsigned short I; // index register
 unsigned short pc; // program counter
-unsigned char gfx[2048];//64*32 display - ON/OFF
+unsigned char gfx[64][32];//64*32 display - ON/OFF
 unsigned char delay_timer; //TIME REGISETR
 unsigned char sound_timer;//TIME REGISETR
 unsigned char key[16]; // 0X0 to 0XF 
@@ -53,8 +54,13 @@ void reset()
 	delay_timer = 0;
 	sound_timer = 0;
 	
-	for (int i = 0; i < 2048; ++i)
-		gfx[i] = 0;
+	for (int x = 0; x < 64; ++x)
+	{
+		for (int y = 0; y < 32; ++y)
+		{
+			gfx[x][y] = 0x0;
+		}
+	}
 
 	for (int i = 0; i < 16; ++i) {
 		stack[i] = 0;
@@ -69,22 +75,32 @@ void reset()
 
 	}
 
-void render()
+void render(unsigned char gfx[64][32], SDL_Renderer* renderer)
 {
-	system("cls");
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	SDL_RenderClear(renderer);
 	for (int y = 0; y < 32; ++y)
 	{
 		for (int x = 0; x < 64; ++x)
 		{
-			if (gfx[(y * 64) + x] == 0)
-				printf("*");
-			else
-				printf("#");
+			if (gfx[x][y] == 1) {
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+				SDL_RenderDrawPointF(renderer,x, y);
+				
+			}
+			else {
+
+		}
 		}
 		printf("\n");
 	}
 	printf("\n");
+	SDL_RenderPresent(renderer);
+	
 }
+
+
+
 
 
 
@@ -132,10 +148,12 @@ bool loadROM(const char* filename)
 
 
 //OPCODE SOURCE: https://multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
-void emulateCycle()
+void emulateCycle(SDL_Renderer* renderer)
 {
 	// Fetch opcode
-	opcode = memory[pc] << 8 | memory[pc + 1]; //
+	opcode = memory[pc + 0];
+	opcode <<= 8;
+	opcode |= memory[pc + 1];
 
 	// Process opcode
 	switch (opcode & 0xF000)
@@ -144,9 +162,14 @@ void emulateCycle()
 		switch (opcode & 0x000F) //
 		{
 		case 0x0000: // 0x00E0
-			for (int i = 0; i < 2048; ++i)
-				gfx[i] = 0x0;
-			render();
+			for (int x = 0; x < 64; ++x)
+			{
+				for (int y = 0; y < 32; ++y)
+				{
+					gfx[x][y] = 0x0;
+				}
+			}
+			render(gfx,renderer);
 			pc += 2;
 			break;
 
@@ -290,7 +313,7 @@ void emulateCycle()
 		pc += 2;
 		break;
 
-	case 0xD000: // DXYN
+	case 0xD000: // DXYN  THIS ONE
 		
 	{
 		unsigned short x = V[(opcode & 0x0F00) >> 8];
@@ -306,16 +329,16 @@ void emulateCycle()
 			{
 				if ((pixel & (0x80 >> xline)) != 0)
 				{
-					if (gfx[(x + xline + ((y + yline) * 64))] == 1)
+					if (gfx[x+xline][(y + yline)] == 1)
 					{
 						V[0xF] = 1;
 					}
-					gfx[x + xline + ((y + yline) * 64)] ^= 1;
+					gfx[x + xline][(y + yline)] ^= 1;
 				}
 			}
 		}
 
-		render();
+		render(gfx,renderer);
 		pc += 2;
 	}
 	break;
@@ -450,16 +473,32 @@ void keyPress() {
 /*MAIN*/
 int main(int argc, char** argv)
 {
-	char romName[100]="";
+	/// window
+	SDL_Event e;
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_CreateWindowAndRenderer(640, 320, 0, &window, &renderer);
+	SDL_RenderSetScale(renderer, 10, 10);
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+	
+
+	char romName[100]="C:/Users/Camden/Downloads/Space Invaders [David Winter].ch8";
 	printf("Type Rom: ");
-	scanf("%s", romName);
+	//scanf("%s", romName);
 	const char* romPTR = &romName;
 	loadROM(romPTR);
-	render();
+	
+	/// window
+	render(gfx,renderer);
+
+  
 	
     while (pc < (romSize + 0x200))
     {
-        emulateCycle();
+        emulateCycle(renderer);
     }
 	
     return 0;
