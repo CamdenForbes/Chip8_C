@@ -32,6 +32,9 @@
     <None Include="..\..\..\..\Downloads\IBMLogo.ch8">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\..\..\Downloads\Pong (1 player).ch8">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h">

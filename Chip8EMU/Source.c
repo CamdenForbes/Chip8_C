@@ -77,7 +77,7 @@ void reset()
 
 void render(unsigned char gfx[64][32], SDL_Renderer* renderer)
 {
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 50, 255);
 	SDL_RenderClear(renderer);
 	for (int y = 0; y < 32; ++y)
 	{
@@ -345,7 +345,8 @@ void emulateCycle(SDL_Renderer* renderer)
 	case 0xE000:
 		switch (opcode & 0x00FF)
 		{
-		case 0x009E: // EX9E
+		case 0x009E: // EX9E'
+			printf("opcode [0xE000]: 0x%X\n", opcode);
 			if (key[V[(opcode & 0x0F00) >> 8]] != 0)
 				pc += 4;
 			else
@@ -353,6 +354,8 @@ void emulateCycle(SDL_Renderer* renderer)
 			break;
 
 		case 0x00A1: // EXA1
+			printf("opcode [0xE000]: 0x%X   is key %d pressed?  \n", opcode,V[(opcode & 0x0F00) >> 8]);
+			
 			if (key[V[(opcode & 0x0F00) >> 8]] == 0)
 				pc += 4;
 			else
@@ -368,13 +371,17 @@ void emulateCycle(SDL_Renderer* renderer)
 		switch (opcode & 0x00FF)
 		{
 		case 0x0007: // FX07
+			printf("opcode [0xF000]: 0x%X\n", opcode);
 			V[(opcode & 0x0F00) >> 8] = delay_timer;
 			pc += 2;
 			break;
 
 		case 0x000A: // FX0A
 		{
+			printf("opcode [0xF000]: 0x%X\n", opcode);
 			bool keyPress = false;
+
+		
 
 			for (int i = 0; i < 16; ++i)
 			{
@@ -462,11 +469,6 @@ void emulateCycle(SDL_Renderer* renderer)
 	}
 }
 
-void keyPress() {
-
-
-}
-
 
 /*MAIN*/
 int main(int argc, char** argv)
@@ -483,7 +485,7 @@ int main(int argc, char** argv)
 	SDL_RenderClear(renderer);
 	
 
-	char romName[100]="C:/Users/Camden/Downloads/Space Invaders [David Winter].ch8";
+	char romName[100]="C:/Users/Camden/Downloads/Pong (1 player).ch8";
 	printf("Type Rom: ");
 	//scanf("%s", romName);
 	const char* romPTR = &romName;
@@ -497,6 +499,121 @@ int main(int argc, char** argv)
     while (pc < (romSize + 0x200))
     {
         emulateCycle(renderer);
+		while (SDL_PollEvent(&e))
+		{
+			if (e.type == SDL_KEYDOWN)
+			{
+				switch (e.key.keysym.sym) {
+				case SDLK_0:
+					key[0] = 1;
+					break;
+				case SDLK_1:
+					key[1] = 1;
+					break;
+				case SDLK_2:
+					key[2] = 1;
+					break;
+				case SDLK_3:
+					key[3] = 1;
+					break;
+				case SDLK_4:
+					key[4] = 1;
+					break;
+				case SDLK_5:
+					key[5] = 1;
+					break;
+				case SDLK_6:
+					key[6] = 1;
+					break;
+				case SDLK_7:
+					key[7] = 1;
+					break;
+				case SDLK_8:
+					key[8] = 1;
+					break;
+				case SDLK_9:
+					key[9] = 1;
+					break;
+				case SDLK_q:
+					key[10] = 1;
+					break;
+				case SDLK_w:
+					key[11] = 1;
+					break;
+				case SDLK_e:
+					key[12] = 1;
+					break;
+				case SDLK_r:
+					key[13] = 1;
+					break;
+				case SDLK_t:
+					key[14] = 1;
+					break;
+				case SDLK_y:
+					key[15] = 1;
+					break;
+				default:
+					break;
+				}
+			}
+			else if (e.type == SDL_KEYUP) {
+				switch (e.key.keysym.sym) {
+				case SDLK_0:
+					key[0] = 1;
+					break;
+				case SDLK_1:
+					key[1] = 0;
+					break;
+				case SDLK_2:
+					key[2] = 0;
+					break;
+				case SDLK_3:
+					key[3] = 0;
+					break;
+				case SDLK_4:
+					key[4] = 0;
+					break;
+				case SDLK_5:
+					key[5] = 0;
+					break;
+				case SDLK_6:
+					key[6] = 0;
+					break;
+				case SDLK_7:
+					key[7] = 0;
+					break;
+				case SDLK_8:
+					key[8] = 0;
+					break;
+				case SDLK_9:
+					key[9] = 0;
+					break;
+				case SDLK_q:
+					key[10] = 0;
+					break;
+				case SDLK_w:
+					key[11] = 0;
+					break;
+				case SDLK_e:
+					key[12] = 0;
+					break;
+				case SDLK_r:
+					key[13] = 0;
+					break;
+				case SDLK_t:
+					key[14] = 0;
+					break;
+				case SDLK_y:
+					key[15] = 0;
+					break;
+				default:
+					break;
+				}
+			}
+
+			
+		}
+
     }
 	
     return 0;
