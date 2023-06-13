@@ -88,14 +88,13 @@ void render(unsigned char gfx[64][32], SDL_Renderer* renderer)
 				SDL_RenderDrawPointF(renderer,x, y);
 				
 			}
-			else {
-
 		}
-		}
-		printf("\n");
+	
 	}
-	printf("\n");
+	SDL_Delay(10);
 	SDL_RenderPresent(renderer);
+	
+	
 	
 }
 
@@ -459,7 +458,6 @@ void emulateCycle(SDL_Renderer* renderer)
 	if (sound_timer > 0)// update sound timer
 	{
 		if (sound_timer == 1)
-			//...
 		--sound_timer;
 	}
 }
